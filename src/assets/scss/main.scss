@@ -1,0 +1,169 @@
+/* Указываем box sizing */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+/* Убираем внутренние отступы */
+ul[class],
+ol[class] {
+    padding: 0;
+}
+
+/* Убираем внешние отступы */
+body,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 p,
+li,
+figure,
+figcaption,
+blockquote,
+dl,
+dd,
+span,
+p {
+    margin: 0;
+    line-height: initial;
+}
+
+span {
+    display: block;
+}
+
+a {
+    display: block;
+    text-decoration: none;
+}
+
+
+label,
+input {
+    display: block;
+}
+
+/* Удаляем стандартную стилизацию для всех ul и il, у которых есть атрибут class*/
+ul[class],
+ol[class] {
+    list-style: none;
+}
+
+/* Элементы a, у которых нет класса, сбрасываем до дефолтных стилей */
+a:not([class]) {
+    text-decoration-skip-ink: auto;
+    display: inline;
+}
+
+/* Упрощаем работу с изображениями */
+img {
+    max-width: 100%;
+    display: block;
+}
+
+
+
+/* Наследуем шрифты для инпутов и кнопок */
+input,
+button,
+textarea,
+select {
+    font: inherit;
+
+    &:focus {
+        outline: none;
+    }
+}
+
+
+
+
+.game-container {
+    position: relative;
+    margin: auto;
+    max-width: 1280px;
+    width: 100%;
+}
+
+.game-inner {
+    height: 0px;
+    padding-top: 69.61%;
+}
+
+.game-inner__content {
+    overflow: hidden;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url(@/assets/img/bg.jpg);
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-position: center;
+}
+
+
+.find-item {
+    position: absolute;
+
+    svg {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        object-position: center;
+    }
+}
+
+.svg-item {
+    width: 100%;
+    height: 100%;
+}
+
+
+svg,
+.find-item {
+    pointer-events: none;
+}
+
+svg path,
+svg rect,
+svg circle {
+    pointer-events: auto;
+}
+
+
+
+
+
+.fade-enter-active {
+    transition: opacity .3s ease-in-out .2s;
+
+}
+
+.fade-leave-active {
+    transition: opacity 0.5s ease-in-out .2s;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+    opacity: 0;
+}
+
+// .fadeScale-enter-active {
+//     transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+// }
+
+// .fadeScale-leave-active {
+//     transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out .3s;
+// }
+
+// .fadeScale-enter-from,
+// .fadeScale-leave-to {
+//     opacity: 0;
+//     transform: scale(.2);
+// }
