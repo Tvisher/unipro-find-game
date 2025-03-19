@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import CarpetBad from "@/assets/img/carpet-bad.svg";
 import CarpetGood from "@/assets/img/carpet-good.svg";
 
@@ -29,13 +29,67 @@ import WiresGood from "@/assets/img/wires-good.svg";
 import HeaterBad from "@/assets/img/heater-bad.svg";
 import HeaterGood from "@/assets/img/heater-good.svg";
 
+import CloseIco from "@/assets/img/close-ico.svg";
+import ResultIco from "@/assets/img/game-result-ico.svg";
+
 const foundElements = ref([]);
+const descriptionText = ref("");
+const currentFindElementId = ref(null);
+const gameStart = ref(false);
+const time = ref(0);
+const showResult = ref(false);
+let timer = null;
+
+const formattedTime = computed(() => {
+  const minutes = Math.floor(time.value / 60);
+  const seconds = time.value % 60;
+  return `${String(minutes).padStart(2, "0")} : ${String(seconds).padStart(
+    2,
+    "0"
+  )}`;
+});
+const textData = {
+  1: "Неусточивое положение коробок может привести к их паденю на голову коллег",
+  2: "Открытый огонь от свечи может привести в возгоранию",
+  3: "Стул",
+  4: "Открытые дверки шкафа травмоопасны",
+  5: "Загроможденный выход может помешать эвакуации при ЧС!",
+  6: "Не должен быть слишком близко, чтобы не вредить глазам",
+  7: "Неусточивое положение коробок может привести к их паденю на голову коллег",
+  8: "Перегруженный удлинитель может вызвать короткое замыкание и как следствие к пожару",
+  9: "Плохо смонтирование розетки могут ударить током",
+  10: "Перегруженный удлинитель может вызвать короткое замыкание и как следствие к пожару",
+};
 
 const handleClick = (event, svgId) => {
-  console.log(event.target);
-
   const targetSvg = event.target.closest("svg");
-  targetSvg && foundElements.value.push(svgId);
+  if (targetSvg) {
+    foundElements.value.push(svgId);
+    currentFindElementId.value = svgId;
+    descriptionText.value = textData[svgId];
+  }
+};
+
+const startTimer = () => {
+  gameStart.value = true;
+  if (!timer) {
+    timer = setInterval(() => {
+      time.value++;
+    }, 1000);
+  }
+};
+
+const stopTimer = () => {
+  clearInterval(timer);
+  timer = null;
+  showResult.value = true;
+};
+
+const resetGame = () => {
+  foundElements.value = [];
+  showResult.value = false;
+  time.value = 0;
+  startTimer();
 };
 </script>
 
@@ -181,11 +235,87 @@ const handleClick = (event, svgId) => {
           </div>
         </Transition>
       </div>
+      <div
+        class="overlay"
+        :class="{
+          show: currentFindElementId || showResult,
+          dark: showResult,
+        }"
+      ></div>
+      <Transition name="fadeScale">
+        <div
+          class="description-modal"
+          v-if="currentFindElementId"
+          :data-modal-id="currentFindElementId"
+        >
+          <div
+            class="description-modal__close"
+            @click="currentFindElementId = null"
+          >
+            <CloseIco />
+          </div>
+          <div class="description-modal__title">Правильно!</div>
+          <div class="description-modal__text">{{ descriptionText }}</div>
+        </div>
+      </Transition>
+
+      <Transition name="fade">
+        <div
+          class="check-btn"
+          v-if="foundElements.length > 0"
+          @click="stopTimer"
+        >
+          Готово. Узнать результат
+        </div>
+      </Transition>
+      <Transition name="fade">
+        <div class="start-modal" v-if="!gameStart">
+          <div class="start-modal__inner">
+            <div class="start-modal__btn" @click="startTimer">Начать игру!</div>
+          </div>
+        </div>
+      </Transition>
+      <Transition name="fade">
+        <div class="result-modal" v-if="showResult">
+          <div class="result-modal__ico"><ResultIco /></div>
+          <div class="result-modal__text">
+            Вот вы молодец! Прошли игру и теперь знаете как поддерживать порядок
+          </div>
+          <div class="result-modal__block">
+            <div class="result-modal__block-title">Время прохождения</div>
+            <div class="result-modal__block-data">{{ formattedTime }}</div>
+
+            <div class="result-modal__block-title">Обнаружено элементов</div>
+            <div class="result-modal__block-data">
+              {{ foundElements.length }} / 10
+            </div>
+          </div>
+          <div class="start-modal__btn" @click="resetGame">пройти заново</div>
+        </div>
+      </Transition>
     </div>
   </div>
 </template>
 
 <style lang="scss">
+.overlay {
+  z-index: 3;
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  left: 0;
+  top: 0;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease-in-out;
+  &.show {
+    opacity: 1;
+    visibility: visible;
+  }
+  &.dark {
+    background-color: rgba(0, 0, 0, 0.3);
+  }
+}
 .find-item {
   &.capter.bad {
     bottom: -0.1%;
@@ -314,7 +444,6 @@ const handleClick = (event, svgId) => {
   }
 
   &.heater.good {
-    // background: rgba(255, 0, 0, 0.3);
     top: 48.5%;
     left: 1.8%;
     width: 4.3%;
