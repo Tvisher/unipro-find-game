@@ -86,6 +86,7 @@ select {
     margin: auto;
     max-width: 1280px;
     width: 100%;
+    font-family: "rb";
 }
 
 .game-inner {
@@ -181,7 +182,7 @@ svg circle {
 
 .description-modal__title {
     color: #000;
-    font-family: "DIN Pro";
+    font-family: "rb";
     font-size: clamp(1px, 2.18vw, 28px);
     font-style: normal;
     font-weight: 900;
@@ -192,7 +193,7 @@ svg circle {
 
 .description-modal__text {
     color: #000;
-    font-family: "DIN Pro";
+    font-family: "rb";
     font-size: clamp(1px, 1.87vw, 24px);
     font-style: normal;
     font-weight: 500;
@@ -274,7 +275,7 @@ svg circle {
     right: clamp(1px, 1.56vw, 20px);
     bottom: clamp(1px, 1.56vw, 20px);
     color: #FFF;
-    font-family: "DIN Pro";
+    font-family: "rb";
     font-size: clamp(1px, 1.56vw, 20px);
     font-style: normal;
     font-weight: 900;
@@ -289,7 +290,7 @@ svg circle {
 
 .start-modal__btn {
     color: #FFF;
-    font-family: "DIN Pro";
+    font-family: "rb";
     font-size: clamp(1px, 2vw, 26px);
     font-style: normal;
     font-weight: 900;
@@ -324,19 +325,29 @@ svg circle {
     padding: clamp(1px, 3.4vw, 44px) clamp(1px, 4.68vw, 60px);
 }
 
+.result-modal__wrapper {
+    z-index: 10;
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+}
 
 .result-modal {
-    z-index: 10;
     display: flex;
     flex-direction: column;
     align-items: center;
     max-width: clamp(1px, 54vw, 660px);
     width: 100%;
     padding: clamp(1px, 2.29vw, 28px) clamp(1px, 4.91vw, 60px) clamp(1px, 3.93vw, 48px) clamp(1px, 4.91vw, 60px);
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
+    // position: absolute;
+    // left: 50%;
+    // top: 50%;
+    // transform: translate(-50%, -50%);
     border-radius: clamp(1px, 1.3vw, 16px);
     border: 3px solid #000;
     background: #FFF;
@@ -371,7 +382,7 @@ svg circle {
 
 .result-modal__block-title {
     color: #000;
-    font-family: "DIN Pro";
+    font-family: "rb";
     font-size: clamp(1px, 2.21vw, 27px);
     font-style: normal;
     font-weight: 700;
@@ -381,7 +392,7 @@ svg circle {
 
 .result-modal__block-data {
     color: #8DD429;
-    font-family: "DIN Pro";
+    font-family: "rb";
     font-size: clamp(1px, 2.62vw, 32px);
     font-style: normal;
     font-weight: 900;
@@ -396,7 +407,7 @@ svg circle {
 .result-modal__text {
     color: #000;
     text-align: center;
-    font-family: "DIN Pro";
+    font-family: "rb";
     font-size: clamp(1px, 1.96vw, 24px);
     margin-bottom: clamp(1px, 3.27vw, 40px);
     font-style: normal;

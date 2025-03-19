@@ -275,22 +275,25 @@ const resetGame = () => {
           </div>
         </div>
       </Transition>
-      <Transition name="fade">
-        <div class="result-modal" v-if="showResult">
-          <div class="result-modal__ico"><ResultIco /></div>
-          <div class="result-modal__text">
-            Вот вы молодец! Прошли игру и теперь знаете как поддерживать порядок
-          </div>
-          <div class="result-modal__block">
-            <div class="result-modal__block-title">Время прохождения</div>
-            <div class="result-modal__block-data">{{ formattedTime }}</div>
-
-            <div class="result-modal__block-title">Обнаружено элементов</div>
-            <div class="result-modal__block-data">
-              {{ foundElements.length }} / 10
+      <Transition name="fadeScale" mode="out-in">
+        <div class="result-modal__wrapper" v-if="showResult">
+          <div class="result-modal">
+            <div class="result-modal__ico"><ResultIco /></div>
+            <div class="result-modal__text">
+              Вот вы молодец! Прошли игру и теперь знаете как поддерживать
+              порядок
             </div>
+            <div class="result-modal__block">
+              <div class="result-modal__block-title">Время прохождения</div>
+              <div class="result-modal__block-data">{{ formattedTime }}</div>
+
+              <div class="result-modal__block-title">Обнаружено элементов</div>
+              <div class="result-modal__block-data">
+                {{ foundElements.length }} / 10
+              </div>
+            </div>
+            <div class="start-modal__btn" @click="resetGame">пройти заново</div>
           </div>
-          <div class="start-modal__btn" @click="resetGame">пройти заново</div>
         </div>
       </Transition>
     </div>
