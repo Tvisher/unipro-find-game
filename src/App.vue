@@ -1,10 +1,21 @@
 <script setup>
-import { ref, computed } from "vue";
+import { ref, reactive, computed } from "vue";
+
+import lottie from "lottie-web";
+const animationEmpty = new URL(`./assets/animation-empty.json`, import.meta.url)
+  .href;
+
+const animationCurrent = new URL(
+  `./assets/animation-empty.json`,
+  import.meta.url
+).href;
+
 import CarpetBad from "@/assets/img/carpet-bad.svg";
 import CarpetGood from "@/assets/img/carpet-good.svg";
 
-import BlindsBad from "@/assets/img/blinds-bad.svg";
-import BlindsGood from "@/assets/img/blinds-good.svg";
+import BlindsBad from "@/assets/img/blinds-good.svg";
+import Candle from "@/assets/img/candle.svg";
+import BlindsGood from "@/assets/img/blinds-bad.svg";
 
 import ChairBad from "@/assets/img/chair-bad.svg";
 import ChairGood from "@/assets/img/chair-good.svg";
@@ -32,6 +43,11 @@ import HeaterGood from "@/assets/img/heater-good.svg";
 import CloseIco from "@/assets/img/close-ico.svg";
 import ResultIco from "@/assets/img/game-result-ico.svg";
 
+const animations = {
+  empty: animationEmpty,
+  current: animationCurrent,
+};
+
 const foundElements = ref([]);
 const descriptionText = ref("");
 const currentFindElementId = ref(null);
@@ -49,24 +65,33 @@ const formattedTime = computed(() => {
   )}`;
 });
 const textData = {
-  1: "Об замявшийся коврик легко вспоткнуться",
-  2: "Открытый огонь от свечи может привести в возгоранию",
-  3: "Стул",
-  4: "Открытые дверки шкафа травмоопасны",
-  5: "Загроможденный выход может помешать эвакуации при ЧС!",
-  6: "Не должен быть слишком близко, чтобы не вредить глазам",
-  7: "Неусточивое положение коробок может привести к их паденю на голову коллег",
-  8: "Перегруженный удлинитель может вызвать короткое замыкание и как следствие к пожару",
-  9: "Плохо смонтирование розетки могут ударить током",
-  10: "Перегруженный удлинитель может вызвать короткое замыкание и как следствие к пожару",
+  1: "Складки и неровности на ковровых покрытиях создают опасность спотыкания и падения. Разглаживайте их или закрепляйте.",
+  2: "Свечи и открытый огонь могут стать причиной пожара. Держите их подальше от легко воспламеняющихся предметов.",
+  3: "Неисправные колесики офисных стульев повышают риск травм. Проверяйте их состояние и своевременно заменяйте",
+  4: "Оставленные открытыми дверцы шкафов представляют опасность травмирования. Закрывайте их после использования.",
+  5: "Загромождение эвакуационных выходов затрудняет своевременное покидание здания в случае ЧС. Держите проходы свободными.",
+  6: "Слишком близкое расположение экрана монитора напрягает зрение. Оптимальное расстояние – 50–70 см.",
+  7: "Неустойчиво сложенные коробки могут упасть и травмировать людей. Размещайте их безопасно.",
+  8: "Некачественный монтаж или повреждение розеток могут привести к поражению электрическим током. Используйте только исправные устройства.",
+  9: "Два перегруженных удлинителя в одной комнате?! Вероятность короткого замыкания и пожара очень высока",
+  10: "Чрезмерная нагрузка на розетку может вызвать короткое замыкание и привести к пожару. Подключайте приборы в соответствии с допустимой нагрузкой.",
 };
 
-const handleClick = (event, svgId) => {
+const handleClick = (event) => {
   const targetSvg = event.target.closest("svg");
-  if (targetSvg) {
-    foundElements.value.push(svgId);
-    currentFindElementId.value = svgId;
-    descriptionText.value = textData[svgId];
+  const targetSvgId = targetSvg ? targetSvg.dataset.svgItem : null;
+  handleMouseMove(event);
+
+  if (!targetSvgId) {
+    playAnimation("empty");
+    return;
+  }
+
+  if (targetSvgId) {
+    playAnimation("current");
+    foundElements.value.push(+targetSvgId);
+    currentFindElementId.value = targetSvgId;
+    descriptionText.value = textData[targetSvgId];
   }
 };
 
@@ -91,18 +116,68 @@ const resetGame = () => {
   time.value = 0;
   startTimer();
 };
+
+const lottieContainer = ref(null);
+let animationInstance = null;
+
+const wrapper = ref(null);
+const position = reactive({ x: 0, y: 0 });
+
+const containerStyle = computed(() => ({
+  position: "absolute",
+  left: position.x + "px",
+  top: position.y + "px",
+  width: "clamp(5px,6vw,80px)",
+  height: "clamp(5px,6vw,80px)",
+  transform: "translate(-50%, -50%)",
+  pointerEvents: "none",
+  zIndex: 10,
+}));
+
+function handleMouseMove(event) {
+  const rect = wrapper.value.getBoundingClientRect();
+  const x = event.clientX - rect.left;
+  const y = event.clientY - rect.top;
+  position.x = x;
+  position.y = y;
+}
+
+function playAnimation(name) {
+  if (!animations[name]) return;
+
+  if (animationInstance) {
+    animationInstance.stop();
+    animationInstance.destroy();
+  }
+  // Загружаем новую
+  animationInstance = lottie.loadAnimation({
+    container: lottieContainer.value,
+    renderer: "svg",
+    loop: false,
+    autoplay: false,
+    path: animations[name],
+  });
+  animationInstance.setSpeed(3);
+  animationInstance.play();
+}
 </script>
 
 <template>
   <div class="game-container">
     <div class="game-inner">
-      <div class="game-inner__content">
+      <div
+        @click="handleClick($event)"
+        class="game-inner__content"
+        ref="wrapper"
+      >
+        <div
+          class="lottie-container"
+          ref="lottieContainer"
+          :style="containerStyle"
+        ></div>
         <Transition name="fade">
           <div class="find-item capter bad" v-if="!foundElements.includes(1)">
-            <CarpetBad
-              class="svg-item"
-              @click.capture="handleClick($event, 1)"
-            />
+            <CarpetBad class="svg-item" data-svg-item="1" />
           </div>
         </Transition>
         <Transition name="fade">
@@ -113,12 +188,16 @@ const resetGame = () => {
 
         <Transition name="fade">
           <div class="find-item blinds bad" v-if="!foundElements.includes(2)">
-            <BlindsBad
-              class="svg-item"
-              @click.capture="handleClick($event, 2)"
-            />
+            <BlindsBad class="svg-item" data-svg-item="2" />
           </div>
         </Transition>
+
+        <Transition name="fade">
+          <div class="find-item candle bad" v-if="!foundElements.includes(2)">
+            <Candle class="svg-item" data-svg-item="2" />
+          </div>
+        </Transition>
+
         <Transition name="fade">
           <div class="find-item blinds good" v-if="foundElements.includes(2)">
             <BlindsGood class="svg-item" />
@@ -127,10 +206,7 @@ const resetGame = () => {
 
         <Transition name="fade">
           <div class="find-item chair bad" v-if="!foundElements.includes(3)">
-            <ChairBad
-              class="svg-item"
-              @click.capture="handleClick($event, 3)"
-            />
+            <ChairBad class="svg-item" data-svg-item="3" />
           </div>
         </Transition>
         <Transition name="fade">
@@ -141,10 +217,7 @@ const resetGame = () => {
 
         <Transition name="fade">
           <div class="find-item closet bad" v-if="!foundElements.includes(4)">
-            <ClosetBad
-              class="svg-item"
-              @click.capture="handleClick($event, 4)"
-            />
+            <ClosetBad class="svg-item" data-svg-item="4" />
           </div>
         </Transition>
         <Transition name="fade">
@@ -155,7 +228,7 @@ const resetGame = () => {
 
         <Transition name="fade">
           <div class="find-item door bad" v-if="!foundElements.includes(5)">
-            <DoorBad class="svg-item" @click.capture="handleClick($event, 5)" />
+            <DoorBad class="svg-item" data-svg-item="5" />
           </div>
         </Transition>
         <Transition name="fade">
@@ -166,10 +239,7 @@ const resetGame = () => {
 
         <Transition name="fade">
           <div class="find-item monitor bad" v-if="!foundElements.includes(6)">
-            <MonitorBad
-              class="svg-item"
-              @click.capture="handleClick($event, 6)"
-            />
+            <MonitorBad class="svg-item" data-svg-item="6" />
           </div>
         </Transition>
         <Transition name="fade">
@@ -180,10 +250,7 @@ const resetGame = () => {
 
         <Transition name="fade">
           <div class="find-item boxes bad" v-if="!foundElements.includes(7)">
-            <BoxesBad
-              class="svg-item"
-              @click.capture="handleClick($event, 7)"
-            />
+            <BoxesBad class="svg-item" data-svg-item="7" />
           </div>
         </Transition>
 
@@ -192,10 +259,7 @@ const resetGame = () => {
             class="find-item extension bad"
             v-if="!foundElements.includes(8)"
           >
-            <ExtensionBad
-              class="svg-item"
-              @click.capture="handleClick($event, 8)"
-            />
+            <ExtensionBad class="svg-item" data-svg-item="8" />
           </div>
         </Transition>
         <Transition name="fade">
@@ -209,10 +273,7 @@ const resetGame = () => {
 
         <Transition name="fade">
           <div class="find-item wires bad" v-if="!foundElements.includes(9)">
-            <WiresBad
-              class="svg-item"
-              @click.capture="handleClick($event, 9)"
-            />
+            <WiresBad class="svg-item" data-svg-item="9" />
           </div>
         </Transition>
         <Transition name="fade">
@@ -223,10 +284,7 @@ const resetGame = () => {
 
         <Transition name="fade">
           <div class="find-item heater bad" v-if="!foundElements.includes(10)">
-            <HeaterBad
-              class="svg-item"
-              @click.capture="handleClick($event, 10)"
-            />
+            <HeaterBad class="svg-item" data-svg-item="10" />
           </div>
         </Transition>
         <Transition name="fade">
@@ -301,6 +359,11 @@ const resetGame = () => {
 </template>
 
 <style lang="scss">
+.lottie-container svg {
+  width: 100% !important;
+  height: 100% !important;
+  transform: scale(1);
+}
 .overlay {
   z-index: 3;
   width: 100%;
@@ -320,6 +383,12 @@ const resetGame = () => {
   }
 }
 .find-item {
+  &.candle {
+    top: 46%;
+    left: 46.5%;
+    width: 6%;
+    height: 5.5%;
+  }
   &.capter.bad {
     bottom: -0.1%;
     left: 16.7%;
@@ -334,14 +403,14 @@ const resetGame = () => {
     height: 17.3%;
   }
 
-  &.blinds.bad {
+  &.blinds.good {
     top: 10.7%;
     left: 28.5%;
     width: 27%;
     height: 21%;
   }
 
-  &.blinds.good {
+  &.blinds.bad {
     top: 10.7%;
     left: 28.5%;
     width: 27.2%;
