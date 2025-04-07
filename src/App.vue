@@ -6,7 +6,7 @@ const animationEmpty = new URL(`./assets/animation-empty.json`, import.meta.url)
   .href;
 
 const animationCurrent = new URL(
-  `./assets/animation-empty.json`,
+  `./assets/animation-current.json`,
   import.meta.url
 ).href;
 
